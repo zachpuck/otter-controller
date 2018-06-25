@@ -6,7 +6,13 @@ import (
 
 	"github.com/kubernetes-sigs/kubebuilder/pkg/controller"
 	"github.com/kubernetes-sigs/kubebuilder/pkg/controller/types"
+	"github.com/kubernetes-sigs/kubebuilder/pkg/controller/predicates"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	ottersv1alpha1 "github.com/zachpuck/otter-controller/pkg/apis/otters/v1alpha1"
 	ottersv1alpha1client "github.com/zachpuck/otter-controller/pkg/client/clientset/versioned/typed/otters/v1alpha1"
@@ -25,7 +31,7 @@ func (bc *OtterController) Reconcile(k types.ReconcileKey) error {
 
 	// Read the Otter state
 	ot, err := bc.Clientset.
-		WorkloadsV1alpha1().
+		OttersV1alpha1().
 		Otters(k.Namespace).
 		Get(k.Name, metav1.GetOptions{})
 	if err != nil {
@@ -40,14 +46,14 @@ func (bc *OtterController) Reconcile(k types.ReconcileKey) error {
 			MatchLabels: map[string]string {
 				"otter": k.Name},
 		},
-		Replicas: &cs.Spec.Replicas,
+		Replicas: &ot.Spec.Replicas,
 		Template: corev1.PodTemplateSpec{
 			ObjectMeta: metav1.ObjectMeta{
 				Labels: map[string]string{
 					"otter": k.Name},
 			},
 			Spec: corev1.PodSpec{
-				Otters: []corev1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: k.Name,
 						Image: ot.Spec.Image,
@@ -69,8 +75,8 @@ func (bc *OtterController) Reconcile(k types.ReconcileKey) error {
 		}
 		// Set OwnerReferences so the Deployment is GCed
 		dep.OwnerReferences = []metav1.OwnerReference{
-			*metav1.NewControllerRef(ot, scheme.GroupVersionKind{
-				Group: "workloads.k8s.io",
+			*metav1.NewControllerRef(ot, schema.GroupVersionKind{
+				Group: "k8s.dokuforest.com",
 				Version: "v1alpha1",
 				Kind: "Otter",
 			}),
@@ -141,7 +147,7 @@ func ProvideController(arguments args.InjectArgs) (*controller.GenericController
 	// Watch Deployments
 	otterLookup := func(k types.ReconcileKey) (interface{}, error) {
 		d, err := bc.Clientset.
-			WorkloadsV1alpha1().
+			OttersV1alpha1().
 			Otters(k.Namespace).
 			Get(k.Name, metav1.GetOptions{})
 		return d, err
