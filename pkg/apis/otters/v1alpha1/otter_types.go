@@ -8,11 +8,15 @@ import (
 // Created by "kubebuilder create resource" for you to implement the Otter resource schema definition
 // as a go struct.
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// Important: Run "kubebuilder generate" to regenerate code after modifying this file
 
 // OtterSpec defines the desired state of Otter
 type OtterSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "kubebuilder generate" to regenerate code after modifying this file
+	Replicas int32 `json:"replicas,omitempty"`
+
+	// image is the container image to run.  Image must have a tag.
+    // +kubebuilder:validation:Pattern=.+:.+
+	Image string `json:"image,omitempty"`
 }
 
 // OtterStatus defines the observed state of Otter
