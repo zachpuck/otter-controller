@@ -1,6 +1,7 @@
 package otter
 
 import (
+	"github.com/kubernetes-sigs/kubebuilder/pkg/controller/eventhandlers"
 	"log"
 
 	"github.com/kubernetes-sigs/kubebuilder/pkg/controller"
@@ -25,9 +26,14 @@ func (bc *OtterController) Reconcile(k types.ReconcileKey) error {
 	return nil
 }
 
+// OtterController is a sample of implementing a custom controller
 // +kubebuilder:controller:group=otters,version=v1alpha1,kind=Otter,resource=otters
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:informers:group=apps,version=v1,kind=Deployment
 type OtterController struct {
-	// INSERT ADDITIONAL FIELDS HERE
+	// InjectArgs contains the clients provided to ProvideController
+	args.InjectArgs
+
 	otterLister ottersv1alpha1lister.OtterLister
 	otterclient ottersv1alpha1client.OttersV1alpha1Interface
 	// recorder is an event recorder for recording Event resources to the
@@ -40,6 +46,7 @@ type OtterController struct {
 func ProvideController(arguments args.InjectArgs) (*controller.GenericController, error) {
 	// INSERT INITIALIZATIONS FOR ADDITIONAL FIELDS HERE
 	bc := &OtterController{
+		InjectArgs: arguments,
 		otterLister: arguments.ControllerManager.GetInformerProvider(&ottersv1alpha1.Otter{}).(ottersv1alpha1informer.OtterInformer).Lister(),
 
 		otterclient:   arguments.Clientset.OttersV1alpha1(),
@@ -52,10 +59,26 @@ func ProvideController(arguments args.InjectArgs) (*controller.GenericController
 		Reconcile:        bc.Reconcile,
 		InformerRegistry: arguments.ControllerManager,
 	}
+	// Watch Otter
 	if err := gc.Watch(&ottersv1alpha1.Otter{}); err != nil {
 		return gc, err
 	}
 
+	// Watch Deployments
+	otterLookup := func(k types.ReconcileKey) (interface{}, error) {
+		d, err := bc.Clientset.
+			WorkloadsV1alpha1().
+			Otters(k.Namespace).
+			Get(k.Name, metav1.GetOptions{})
+		return d, err
+	}
+	if err := gc.WatchControllerOf(
+		&appsv1.Deployment{},
+		eventhandlers.Path{otterLookup},
+		predicates.ResourceVersionChanged); err != nil {
+			return gc, err
+	}
+	
 	// IMPORTANT:
 	// To watch additional resource types - such as those created by your controller - add gc.Watch* function calls here
 	// Watch function calls will transform each object event into a Otter Key to be reconciled by the controller.
