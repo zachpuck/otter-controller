@@ -1,0 +1,6 @@
+apiVersion: otters.k8s.dokuforest.com/v1alpha1
+kind: Otter
+metadata:
+  name: otter-example
+spec:
+  foo: bar
