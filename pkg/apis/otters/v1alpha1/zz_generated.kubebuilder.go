@@ -80,12 +80,26 @@ var (
 							Type: "object",
 						},
 						"spec": v1beta1.JSONSchemaProps{
-							Type:       "object",
-							Properties: map[string]v1beta1.JSONSchemaProps{},
+							Type: "object",
+							Properties: map[string]v1beta1.JSONSchemaProps{
+								"image": v1beta1.JSONSchemaProps{
+									Pattern: ".+:.+",
+									Type:    "string",
+								},
+								"replicas": v1beta1.JSONSchemaProps{
+									Type:   "integer",
+									Format: "int32",
+								},
+							},
 						},
 						"status": v1beta1.JSONSchemaProps{
-							Type:       "object",
-							Properties: map[string]v1beta1.JSONSchemaProps{},
+							Type: "object",
+							Properties: map[string]v1beta1.JSONSchemaProps{
+								"healthyReplicas": v1beta1.JSONSchemaProps{
+									Type:   "integer",
+									Format: "int32",
+								},
+							},
 						},
 					},
 				},

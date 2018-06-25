@@ -21,8 +21,7 @@ type OtterSpec struct {
 
 // OtterStatus defines the observed state of Otter
 type OtterStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "kubebuilder generate" to regenerate code after modifying this file
+	HealthyReplicas int32 `json:"healthyReplicas,omitempty"`
 }
 
 // +genclient
