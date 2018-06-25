@@ -22,6 +22,80 @@ import (
 
 func (bc *OtterController) Reconcile(k types.ReconcileKey) error {
 	// INSERT YOUR CODE HERE
+
+	// Read the Otter state
+	ot, err := bc.Clientset.
+		WorkloadsV1alpha1().
+		Otters(k.Namespace).
+		Get(k.Name, metav1.GetOptions{})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil
+		}
+	}
+
+	// Create the cononical DeploymentSpec
+	spec := appsv1.DeploymentSpec {
+		Selector: &metav1.LabelSelector {
+			MatchLabels: map[string]string {
+				"otter": k.Name},
+		},
+		Replicas: &cs.Spec.Replicas,
+		Template: corev1.PodTemplateSpec{
+			ObjectMeta: metav1.ObjectMeta{
+				Labels: map[string]string{
+					"otter": k.Name},
+			},
+			Spec: corev1.PodSpec{
+				Otters: []corev1.Container{
+					{
+						Name: k.Name,
+						Image: ot.Spec.Image,
+					},
+				},
+			},
+		},
+	}
+
+	// Read the DeploymentState
+	dep, err := bc.KubernetesClientSet.
+		AppsV1().
+		Deployments(k.Namespace).
+		Get(k.Name, metav1.GetOptions{})
+	if errors.IsNotFound(err) {
+		// Create the Deployment
+		dep = &appsv1.Deployment{
+			Spec: spec,
+		}
+		// Set OwnerReferences so the Deployment is GCed
+		dep.OwnerReferences = []metav1.OwnerReference{
+			*metav1.NewControllerRef(ot, scheme.GroupVersionKind{
+				Group: "workloads.k8s.io",
+				Version: "v1alpha1",
+				Kind: "Otter",
+			}),
+		}
+		dep.Name = k.Name
+		dep.Namespace = k.Namespace
+		_, err = bc.KubernetesClientSet.AppsV1().
+			Deployments(k.Namespace).Create(dep)
+	} else {
+		// Update the Deployment if its observed Spec does not match the desired Spec
+		image := dep.Spec.Template.Spec.Containers[0].Image
+		replicas := *dep.Spec.Replicas
+		if replicas == ot.Spec.Replicas && image == ot.Spec.Image {
+			return nil
+		}
+		dep.Name = k.Name
+		dep.Namespace = k.Namespace
+		dep.Spec = spec
+		_, err = bc.KubernetesClientSet.AppsV1().
+			Deployments(k.Namespace).Update(dep)
+	}
+	if err != nil {
+		return err
+	}
+
 	log.Printf("Implement the Reconcile function on otter.OtterController to reconcile %s\n", k.Name)
 	return nil
 }
