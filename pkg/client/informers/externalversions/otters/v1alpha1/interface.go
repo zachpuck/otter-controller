@@ -8,8 +8,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// Otters returns a OtterInformer.
-	Otters() OtterInformer
+	// SeaOtters returns a SeaOtterInformer.
+	SeaOtters() SeaOtterInformer
 }
 
 type version struct {
@@ -23,7 +23,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// Otters returns a OtterInformer.
-func (v *version) Otters() OtterInformer {
-	return &otterInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// SeaOtters returns a SeaOtterInformer.
+func (v *version) SeaOtters() SeaOtterInformer {
+	return &seaOtterInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

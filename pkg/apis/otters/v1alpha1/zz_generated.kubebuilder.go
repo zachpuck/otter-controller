@@ -28,8 +28,8 @@ var (
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&Otter{},
-		&OtterList{},
+		&SeaOtter{},
+		&SeaOtterList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
@@ -37,10 +37,10 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type OtterList struct {
+type SeaOtterList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Otter `json:"items"`
+	Items           []SeaOtter `json:"items"`
 }
 
 // CRD Generation
@@ -54,16 +54,16 @@ func getInt(i int64) *int64 {
 
 var (
 	// Define CRDs for resources
-	OtterCRD = v1beta1.CustomResourceDefinition{
+	SeaOtterCRD = v1beta1.CustomResourceDefinition{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "otters.otters.k8s.dokuforest.com",
+			Name: "seaotters.otters.k8s.dokuforest.com",
 		},
 		Spec: v1beta1.CustomResourceDefinitionSpec{
 			Group:   "otters.k8s.dokuforest.com",
 			Version: "v1alpha1",
 			Names: v1beta1.CustomResourceDefinitionNames{
-				Kind:   "Otter",
-				Plural: "otters",
+				Kind:   "SeaOtter",
+				Plural: "seaotters",
 			},
 			Scope: "Namespaced",
 			Validation: &v1beta1.CustomResourceValidation{
@@ -80,26 +80,12 @@ var (
 							Type: "object",
 						},
 						"spec": v1beta1.JSONSchemaProps{
-							Type: "object",
-							Properties: map[string]v1beta1.JSONSchemaProps{
-								"image": v1beta1.JSONSchemaProps{
-									Pattern: ".+:.+",
-									Type:    "string",
-								},
-								"replicas": v1beta1.JSONSchemaProps{
-									Type:   "integer",
-									Format: "int32",
-								},
-							},
+							Type:       "object",
+							Properties: map[string]v1beta1.JSONSchemaProps{},
 						},
 						"status": v1beta1.JSONSchemaProps{
-							Type: "object",
-							Properties: map[string]v1beta1.JSONSchemaProps{
-								"healthyReplicas": v1beta1.JSONSchemaProps{
-									Type:   "integer",
-									Format: "int32",
-								},
-							},
+							Type:       "object",
+							Properties: map[string]v1beta1.JSONSchemaProps{},
 						},
 					},
 				},

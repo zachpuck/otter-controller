@@ -4,9 +4,8 @@ import (
 	"github.com/kubernetes-sigs/kubebuilder/pkg/inject/run"
 	ottersv1alpha1 "github.com/zachpuck/otter-controller/pkg/apis/otters/v1alpha1"
 	rscheme "github.com/zachpuck/otter-controller/pkg/client/clientset/versioned/scheme"
-	"github.com/zachpuck/otter-controller/pkg/controller/otter"
+	"github.com/zachpuck/otter-controller/pkg/controller/seaotter"
 	"github.com/zachpuck/otter-controller/pkg/inject/args"
-	appsv1 "k8s.io/api/apps/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -19,16 +18,13 @@ func init() {
 	Inject = append(Inject, func(arguments args.InjectArgs) error {
 		Injector.ControllerManager = arguments.ControllerManager
 
-		if err := arguments.ControllerManager.AddInformerProvider(&ottersv1alpha1.Otter{}, arguments.Informers.Otters().V1alpha1().Otters()); err != nil {
+		if err := arguments.ControllerManager.AddInformerProvider(&ottersv1alpha1.SeaOtter{}, arguments.Informers.Otters().V1alpha1().SeaOtters()); err != nil {
 			return err
 		}
 
 		// Add Kubernetes informers
-		if err := arguments.ControllerManager.AddInformerProvider(&appsv1.Deployment{}, arguments.KubernetesInformers.Apps().V1().Deployments()); err != nil {
-			return err
-		}
 
-		if c, err := otter.ProvideController(arguments); err != nil {
+		if c, err := seaotter.ProvideController(arguments); err != nil {
 			return err
 		} else {
 			arguments.ControllerManager.AddController(c)
@@ -37,23 +33,12 @@ func init() {
 	})
 
 	// Inject CRDs
-	Injector.CRDs = append(Injector.CRDs, &ottersv1alpha1.OtterCRD)
+	Injector.CRDs = append(Injector.CRDs, &ottersv1alpha1.SeaOtterCRD)
 	// Inject PolicyRules
 	Injector.PolicyRules = append(Injector.PolicyRules, rbacv1.PolicyRule{
 		APIGroups: []string{"otters.k8s.dokuforest.com"},
 		Resources: []string{"*"},
 		Verbs:     []string{"*"},
-	})
-	Injector.PolicyRules = append(Injector.PolicyRules, rbacv1.PolicyRule{
-		APIGroups: []string{
-			"apps",
-		},
-		Resources: []string{
-			"deployments",
-		},
-		Verbs: []string{
-			"create", "delete", "get", "list", "patch", "update", "watch",
-		},
 	})
 	// Inject GroupVersions
 	Injector.GroupVersions = append(Injector.GroupVersions, schema.GroupVersion{
