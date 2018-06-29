@@ -1,0 +1,143 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  labels:
+    api: kubeotters
+    kubebuilder.k8s.io: 0.1.12
+  name: kubeotters-system
+spec: {}
+status: {}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    api: kubeotters
+    kubebuilder.k8s.io: 0.1.12
+  name: kubeotters-role
+rules:
+- apiGroups:
+  - otters.k8s.dokuforest.com
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: null
+  labels:
+    api: kubeotters
+    kubebuilder.k8s.io: 0.1.12
+  name: kubeotters-rolebinding
+  namespace: kubeotters-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeotters-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: kubeotters-system
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: null
+  labels:
+    api: kubeotters
+    kubebuilder.k8s.io: 0.1.12
+  name: seaotters.otters.k8s.dokuforest.com
+spec:
+  group: otters.k8s.dokuforest.com
+  names:
+    kind: SeaOtter
+    plural: seaotters
+  scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          type: object
+        spec:
+          type: object
+        status:
+          type: object
+      type: object
+  version: v1alpha1
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: null
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    api: kubeotters
+    control-plane: controller-manager
+    kubebuilder.k8s.io: 0.1.12
+  name: kubeotters-controller-manager-service
+  namespace: kubeotters-system
+spec:
+  clusterIP: None
+  selector:
+    api: kubeotters
+    control-plane: controller-manager
+    kubebuilder.k8s.io: 0.1.12
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: null
+  labels:
+    api: kubeotters
+    control-plane: controller-manager
+    kubebuilder.k8s.io: 0.1.12
+  name: kubeotters-controller-manager
+  namespace: kubeotters-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      api: kubeotters
+      control-plane: controller-manager
+      kubebuilder.k8s.io: 0.1.12
+  serviceName: kubeotters-controller-manager-service
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        api: kubeotters
+        control-plane: controller-manager
+        kubebuilder.k8s.io: 0.1.12
+    spec:
+      containers:
+      - args:
+        - --install-crds=false
+        command:
+        - /root/controller-manager
+        image: zachpuck/otter-controller:latest
+        name: controller-manager
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+      terminationGracePeriodSeconds: 10
+  updateStrategy: {}
+status:
+  replicas: 0

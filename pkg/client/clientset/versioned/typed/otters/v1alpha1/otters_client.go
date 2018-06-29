@@ -11,7 +11,7 @@ import (
 
 type OttersV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	OttersGetter
+	SeaOttersGetter
 }
 
 // OttersV1alpha1Client is used to interact with features provided by the otters.k8s.dokuforest.com group.
@@ -19,8 +19,8 @@ type OttersV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *OttersV1alpha1Client) Otters(namespace string) OtterInterface {
-	return newOtters(c, namespace)
+func (c *OttersV1alpha1Client) SeaOtters(namespace string) SeaOtterInterface {
+	return newSeaOtters(c, namespace)
 }
 
 // NewForConfig creates a new OttersV1alpha1Client for the given config.

@@ -37,8 +37,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=otters.k8s.dokuforest.com, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("otters"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Otters().V1alpha1().Otters().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("seaotters"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Otters().V1alpha1().SeaOtters().Informer()}, nil
 
 	}
 

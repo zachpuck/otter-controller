@@ -2,10 +2,10 @@
 
 package v1alpha1
 
-// OtterListerExpansion allows custom methods to be added to
-// OtterLister.
-type OtterListerExpansion interface{}
+// SeaOtterListerExpansion allows custom methods to be added to
+// SeaOtterLister.
+type SeaOtterListerExpansion interface{}
 
-// OtterNamespaceListerExpansion allows custom methods to be added to
-// OtterNamespaceLister.
-type OtterNamespaceListerExpansion interface{}
+// SeaOtterNamespaceListerExpansion allows custom methods to be added to
+// SeaOtterNamespaceLister.
+type SeaOtterNamespaceListerExpansion interface{}

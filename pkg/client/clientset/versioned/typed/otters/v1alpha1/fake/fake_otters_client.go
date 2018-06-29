@@ -12,8 +12,8 @@ type FakeOttersV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeOttersV1alpha1) Otters(namespace string) v1alpha1.OtterInterface {
-	return &FakeOtters{c, namespace}
+func (c *FakeOttersV1alpha1) SeaOtters(namespace string) v1alpha1.SeaOtterInterface {
+	return &FakeSeaOtters{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

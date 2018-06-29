@@ -1,0 +1,6 @@
+apiVersion: otters.k8s.dokuforest.com/v1alpha1
+kind: SeaOtter
+metadata:
+  name: seaotter-example
+spec:
+  foo: bar
